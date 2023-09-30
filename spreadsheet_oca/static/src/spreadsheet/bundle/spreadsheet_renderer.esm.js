@@ -58,6 +58,8 @@ export class SpreadsheetRenderer extends Component {
         this.orm = useService("orm");
         this.bus_service = useService("bus_service");
         this.user = useService("user");
+        this.ui = useService("ui");
+        this.action = useService("action");
         const dataSources = new DataSources(this.orm);
         this.state = useState({
             dialogDisplayed: false,
@@ -86,6 +88,7 @@ export class SpreadsheetRenderer extends Component {
         );
         useSubEnv({
             saveSpreadsheet: this.onSpreadsheetSaved.bind(this),
+            download: this._download.bind(this),
             editText: this.editText.bind(this),
         });
         onWillStart(async () => {
@@ -110,6 +113,21 @@ export class SpreadsheetRenderer extends Component {
         const data = this.spreadsheet_model.exportData();
         this.env.saveRecord({spreadsheet_raw: data});
         this.spreadsheet_model.leaveSession();
+    }
+    async _download() {
+        this.ui.block();
+        try {
+            await this.action.doAction({
+                type: "ir.actions.client",
+                tag: "action_download_spreadsheet",
+                params: {
+                    name: this.props.record.name,
+                    xlsxData: this.spreadsheet_model.exportXLSX()
+                },
+            });
+        } finally {
+            this.ui.unblock();
+        }
     }
     editText(title, callback, options) {
         this.state.dialogContent = options.placeholder;

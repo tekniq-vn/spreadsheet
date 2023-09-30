@@ -27,6 +27,12 @@ topbarMenuRegistry.addChild("save", ["file"], {
     action: (env) => env.saveSpreadsheet(),
 });
 
+topbarMenuRegistry.addChild("download", ["file"], {
+    name: _t("Download"),
+    sequence: 20,
+    action: (env) => env.download(),
+});
+
 const {sidePanelRegistry} = spreadsheet.registries;
 
 export class FilterPanel extends Component {
